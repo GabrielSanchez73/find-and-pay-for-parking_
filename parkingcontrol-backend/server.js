@@ -9,7 +9,10 @@ const allowedOrigins = [
   'http://127.0.0.1:5500',
   'http://localhost:8080',
   'http://127.0.0.1:8080',
+  'http://localhost:61904',
+  'http://127.0.0.1:61904',
   'https://gabrielsanchez73.github.io',
+  'https://gabrielsanchez73.github.io/find-and-pay-for-parking_',
   process.env.FRONTEND_URL
 ].filter(Boolean);
 

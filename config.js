@@ -1,4 +1,4 @@
-// URL del backend SOA — cambiar PRODUCTION_API al desplegar en Render/Railway
+// Backend SOA — en local SIEMPRE puerto 3000 (el frontend puede usar 61904 u otro)
 const PRODUCTION_API = 'https://TU-BACKEND.onrender.com/api';
 
 const API_BASE = (function () {

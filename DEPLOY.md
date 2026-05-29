@@ -184,23 +184,21 @@ npm start
 ```
 Verificar: http://localhost:3000/api/health
 
-### 3. Frontend
-Abrir con servidor local (evita problemas CORS con file://):
+### 3. Frontend (puerto 61904 — no choca con el backend en 3000)
 ```bash
-cd find-and-pay-for-parking-main
-npx serve .
+# Desde la raíz del repo
+npm start
 ```
-Abrir: http://localhost:3000 o http://localhost:8080
+Abrir: **http://localhost:61904/**
 
-`config.js` detecta localhost y apunta a `http://localhost:3000/api`.
+El API sigue en **http://localhost:3000/api** (`config.js` lo define así aunque el frontend use otro puerto).
 
 ---
 
 ## Publicar en GitHub Pages
 
-1. Subir carpeta `find-and-pay-for-parking-main/` al repo
-2. Settings → Pages → Source: branch `main`, folder `/root` o `/docs`
-3. URL resultante: `https://TU-USUARIO.github.io/find-and-pay-for-parking/`
+1. Settings → Pages → Source: branch `main`, folder **/ (root)**
+2. URL: **https://gabrielsanchez73.github.io/find-and-pay-for-parking_/**
 
 **Importante:** editar `config.js` antes de publicar:
 ```javascript

@@ -1,0 +1,9 @@
+{
+  "name": "find-and-pay-for-parking",
+  "private": true,
+  "scripts": {
+    "start": "npx serve . -l 61904",
+    "start:backend": "npm start --prefix parkingcontrol-backend",
+    "fix-passwords": "npm run fix-passwords --prefix parkingcontrol-backend"
+  }
+}
