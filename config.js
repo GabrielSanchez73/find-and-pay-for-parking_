@@ -1,10 +1,8 @@
-// Backend SOA — en local SIEMPRE puerto 3000 (el frontend puede usar 61904 u otro)
+const LOCAL_API = 'http://localhost:3000/api';
 const PRODUCTION_API = 'https://find-and-pay-for-parking.onrender.com/api';
 
-const API_BASE = (function () {
-  const host = window.location.hostname;
-  if (host === 'localhost' || host === '127.0.0.1') {
-    return 'http://localhost:3000/api';
-  }
-  return PRODUCTION_API;
-})();
+const API_BASE =
+  window.location.hostname === 'localhost' ||
+  window.location.hostname === '127.0.0.1'
+    ? LOCAL_API
+    : PRODUCTION_API;
