@@ -1,153 +1,226 @@
-# Find and Pay for Parking - Prototipo de Alta Fidelidad
+# ParkingControl SOA
 
-## Descripción
+Sistema de gestión de parqueaderos basado en Arquitectura Orientada a Servicios (SOA), desarrollado como proyecto académico para la asignatura **Arquitectura de Software II — UNIMINUTO 2026-1**.
 
-Prototipo funcional de una aplicación web para encontrar y reservar espacios de parqueo en la ciudad. Incluye todas las pantallas principales del flujo de usuario desde el registro hasta la confirmación de reserva.
+---
 
-## Características
+## Arquitectura del Sistema
 
-- Pantalla de login y registro
-- Mapa interactivo con marcadores de parqueaderos
-- Sistema de reserva con modal
-- Proceso de pago simulado
-- Pantalla de confirmación
-- Panel administrativo
+El sistema está organizado en cuatro capas:
 
-## Tecnologías
+```
+┌─────────────────────────────────────────┐
+│        CAPA DE EXPERIENCIA              │
+│   Frontend SPA (HTML5 / CSS3 / JS)      │
+│   GitHub Pages                          │
+└────────────────┬────────────────────────┘
+                 │ HTTP + JWT
+┌────────────────▼────────────────────────┐
+│        CAPA DE INTEGRACIÓN              │
+│       WSO2 Micro Integrator 4.x         │
+│    API Gateway · RBAC · Rate Limiting   │
+└────────────────┬────────────────────────┘
+                 │ REST/JSON · SOAP/WSDL
+┌────────────────▼────────────────────────┐
+│        CAPA DE SERVICIOS SOA            │
+│           Node.js + Express             │
+│  /auth  /disponibilidad  /ingreso       │
+│  /salida  /soap/disponibilidad          │
+└────────────────┬────────────────────────┘
+                 │ Sequelize ORM
+┌────────────────▼────────────────────────┐
+│          CAPA DE DATOS                  │
+│            MySQL 8.x                    │
+│  usuarios · espacios · registros          │
+│  tarifas                                │
+└─────────────────────────────────────────┘
+```
 
-- HTML5
-- CSS3
-- JavaScript vanilla
+---
 
-## Instalación y Uso
+## Demo en vivo
 
-1. Clona o descarga el repositorio
-2. Abre el archivo `demo.html` en tu navegador
-3. Navega por las diferentes pantallas usando los botones
+| Componente | URL |
+|------------|-----|
+| Frontend (GitHub Pages) | https://gabrielsanchez73.github.io/find-and-pay-for-parking_/ |
+| Backend API (Railway) | https://find-and-pay-for-parking-production.up.railway.app |
+
+Health check: https://find-and-pay-for-parking-production.up.railway.app/api/health
+
+---
 
 ## Estructura del Proyecto
 
 ```
-├── demo.html          # Archivo principal con todo el código
-├── index.html         # Versión con archivos separados
-├── styles.css         # Estilos CSS
-├── script.js          # JavaScript
-└── README.md          # Este archivo
+find-and-pay-for-parking_/
+│
+├── index.html                  # Frontend SPA principal
+├── demo.html                   # Versión demo autocontenida
+├── script.js                   # Lógica del frontend + llamadas al API
+├── styles.css                  # Estilos
+├── config.js                   # URL base del API (dev/prod)
+├── .nojekyll                   # Para GitHub Pages
+│
+├── parkingcontrol-backend/     # Backend SOA
+│   ├── server.js               # Servidor Express principal
+│   ├── .env                    # Variables de entorno (no subir a git)
+│   ├── middleware/
+│   │   └── auth.js             # Middleware JWT + RBAC
+│   ├── models/
+│   │   └── index.js            # Modelos Sequelize (MySQL)
+│   ├── routes/
+│   │   ├── auth.js             # POST /api/auth/login
+│   │   ├── disponibilidad.js   # GET  /api/disponibilidad
+│   │   ├── ingreso.js          # POST /api/ingreso
+│   │   └── salida.js           # POST /api/salida
+│   └── database/
+│       └── schema.sql          # Esquema y datos iniciales
+│
+├── DEPLOY.md                   # Guía de despliegue
+└── README.md                   # Este archivo
 ```
 
-## Flujo de Usuario Detallado
+---
 
-### 1. Autenticación (Login/Registro)
-- **Acción del usuario**: El usuario llega a la aplicación y ve un modal de login/registro sobre el mapa.
-- **Interacciones**:
-  - Cambiar entre pestañas "Iniciar Sesión" y "Registrarse" usando los botones de pestaña.
-  - Ingresar datos en los campos de formulario (email, contraseña, nombre, teléfono).
-  - Hacer clic en "Iniciar Sesión" o "Crear Cuenta" para proceder (con validación automática de campos completos).
-- **Resultado**: El modal se oculta automáticamente tras validación exitosa, revelando el mapa interactivo.
+## Servicios SOA
 
-### 2. Exploración del Mapa
-- **Acción del usuario**: Visualización del mapa interactivo con marcadores.
-- **Interacciones**:
-  - Hacer clic en marcadores del mapa para ver información del parqueadero.
-  - Usar la lista lateral para seleccionar parqueaderos.
-  - Hacer clic en "Reservar" en cualquier parqueadero.
-- **Resultado**: Apertura del modal de reserva.
+| Servicio | Endpoint | Método | Autenticación | Descripción |
+|----------|----------|--------|---------------|-------------|
+| Autenticación | `/api/auth/login` | POST | No | Emite token JWT con rol |
+| Disponibilidad | `/api/disponibilidad` | GET | JWT | Lista espacios disponibles |
+| Resumen | `/api/disponibilidad/resumen` | GET | JWT | Conteo por estado para dashboard |
+| Ingreso | `/api/ingreso` | POST | JWT + OPERADOR | Registra entrada y ocupa espacio |
+| Salida | `/api/salida` | POST | JWT + OPERADOR | Calcula tarifa y libera espacio |
+| SOAP | `/soap/disponibilidad` | SOAP | WSO2 | Consulta institucional vía WSDL |
 
-### 3. Reserva de Espacio
-- **Acción del usuario**: Selección de parámetros de reserva en el modal.
-- **Interacciones**:
-  - Seleccionar fecha y hora de llegada/salida.
-  - Elegir duración y vehículo.
-  - Revisar el resumen de precios.
-  - Hacer clic en "Confirmar Reserva" o "Cancelar".
-- **Resultado**: Navegación a la pantalla de pago.
+---
 
-### 4. Proceso de Pago
-- **Acción del usuario**: Selección y confirmación del método de pago.
-- **Interacciones**:
-  - Revisar el resumen de la reserva.
-  - Seleccionar método de pago (tarjeta, PSE, billetera digital).
-  - Hacer clic en "Pagar $X" para procesar.
-- **Resultado**: Pantalla de confirmación tras simulación de pago.
+## Seguridad
 
-### 5. Confirmación
-- **Acción del usuario**: Revisión de la reserva exitosa.
-- **Interacciones**:
-  - Ver detalles de la reserva y código QR.
-  - Descargar comprobante o ver historial.
-  - Seguir los próximos pasos indicados.
-- **Resultado**: Fin del flujo principal.
+- **JWT** (JSON Web Tokens) con expiración de 8 horas
+- **RBAC** — roles `ADMINISTRADOR` y `OPERADOR`
+- **bcrypt** para hash de contraseñas (factor 12)
+- **HTTPS** en producción vía Railway
+- **Transacciones atómicas** en operaciones de ingreso/salida
 
-### 6. Panel Administrativo (Opcional)
-- **Acción del usuario**: Acceso desde el menú de usuario.
-- **Interacciones**:
-  - Navegar por secciones (Dashboard, Usuarios, Espacios, etc.).
-  - Ver estadísticas y tablas de datos.
-- **Resultado**: Gestión del sistema.
+---
 
-## Botones y Acciones del Usuario
+## Instalación local
 
-| Pantalla | Botón/Acción | Descripción |
-|----------|-------------|-------------|
-| Login | "Iniciar Sesión" | Valida campos y autentica al usuario, navega al mapa |
-| Login | "Crear Cuenta" | Valida campos y registra nuevo usuario, navega al mapa |
-| Mapa | Marcadores del mapa | Muestra información del parqueadero |
-| Mapa | "Reservar" | Abre modal de reserva |
-| Modal | "Confirmar Reserva" | Navega a pantalla de pago |
-| Modal | "Cancelar" | Cierra el modal |
-| Pago | "Pagar $X" | Procesa el pago y muestra confirmación |
-| Pago | "←" (atrás) | Regresa a la pantalla anterior |
-| Confirmación | "Descargar Comprobante" | Simula descarga del ticket |
-| Confirmación | "Ver Historial" | Muestra mensaje de funcionalidad en desarrollo |
-| Admin | Menú lateral | Navega entre secciones administrativas |
+### Requisitos previos
 
-## Enlace al Prototipo
+- Node.js 20.x LTS
+- MySQL 8.x
+- npm 10.x
 
-Accede al prototipo funcional en: [https://gabrielsanchez73.github.io/find-and-pay-for-parking/](https://gabrielsanchez73.github.io/find-and-pay-for-parking/)
+### 1. Clonar el repositorio
 
-*Nota: Asegúrate de que GitHub Pages esté habilitado en Settings > Pages del repositorio.*
+```bash
+git clone https://github.com/GabrielSanchez73/find-and-pay-for-parking_.git
+cd find-and-pay-for-parking_
+```
 
-## Datos de Prueba
+### 2. Configurar el backend
 
-- **Login**: usuario@ejemplo.com / •••••••• (8 puntos)
-- **Registro**: María González / maria@ejemplo.com / +57 300 123 4567 / ••••••••
-- Parqueaderos: Centro ($2,500/h), Plaza ($3,000/h), Norte ($2,000/h), Express ($4,000/h - Ocupado)
-- Ubicaciones: Calles de Bogotá, Colombia
-- Reserva: Fecha 2024-01-15, Llegada 14:30, Salida 16:30 (2 horas)
+```bash
+cd parkingcontrol-backend
+npm install
+```
 
-## Criterios que cumple el prototipo de alto nivel
+### 3. Crear el archivo `.env`
 
-El prototipo desarrollado cumple con los criterios formales de un prototipo de alto nivel, ya que:
+```env
+PORT=3000
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=parking_user
+DB_PASS=P@rking2026!
+DB_NAME=parking_db
+JWT_SECRET=parkingcontrol_jwt_secret_2026
+JWT_EXPIRES=8h
+```
 
-Representa la interfaz con fidelidad visual, siguiendo los lineamientos de diseño definidos.
+### 4. Inicializar la base de datos
 
-Muestra navegación real entre pantallas con animaciones suaves y flujos principales del sistema.
+```bash
+mysql -u root -p < database/schema.sql
+npm run fix-passwords
+```
 
-Implementa interacciones avanzadas que permiten validar el comportamiento esperado del usuario durante la búsqueda, reserva y pago del parqueadero, incluyendo validaciones lógicas, estados de carga y feedback auditivo.
+### 5. Iniciar el servidor
 
-Cubre los requerimientos funcionales principales (RF-03 a RF-07) y los casos de uso centrales definidos en la Fase 1.
+```bash
+npm start
+# → ParkingControl SOA corriendo en puerto 3000
+```
 
-Simula estados dinámicos, validaciones robustas y transiciones fluidas, lo cual supera significativamente las capacidades de un prototipo estático en herramientas como Figma.
+### 6. Abrir el frontend
 
-Incluye elementos de UX avanzados: tooltips contextuales, sonidos de feedback, responsividad completa y micro-interacciones.
+Desde la raíz del repo:
 
-Está documentado mediante capturas, descripción detallada del flujo, ilustración de interacciones y especificación técnica completa.
+```bash
+npm start
+# → http://localhost:61904
+```
 
-Se implementó con HTML5, CSS3 y JavaScript vanilla, cumpliendo la definición formal de prototipo de alta fidelidad según estándares IEEE y las pautas vistas en clase.
+En local, `config.js` apunta a `http://localhost:3000/api`.
 
-Por este motivo, el prototipo publicado en GitHub Pages se considera un prototipo funcional de alto nivel en total cumplimiento con el criterio de la actividad, excediendo los requisitos mínimos con características de UX profesional.
+---
 
-## Notas Técnicas
+## Pruebas
 
-- Prototipo completamente funcional sin dependencias externas
-- Diseño responsive optimizado para dispositivos móviles, tablets y desktop
-- Simulación de datos en tiempo real con estados dinámicos
-- Validaciones avanzadas de formularios (campos obligatorios, lógica de fechas/horas)
-- Navegación automática entre pantallas con animaciones suaves
-- Estados de carga visuales (spinners) durante procesos asíncronos
-- Interactividad mejorada: tooltips en mapa, sonidos de feedback
-- Transiciones fluidas y micro-animaciones para mejor UX
+Las pruebas de integración se ejecutan con colecciones de Postman contra los endpoints del API.
 
-## Autor
+### Credenciales de prueba
 
-Desarrollado como prototipo de alta fidelidad para proyecto académico.
+| Rol | Email | Contraseña |
+|-----|-------|------------|
+| Administrador | admin@parking.com | parking123 |
+| Operador | operador@parking.com | parking123 |
+
+### Escenarios principales
+
+| Escenario | Endpoint | HTTP esperado |
+|-----------|----------|---------------|
+| Login correcto | POST `/api/auth/login` | 200 |
+| Login incorrecto | POST `/api/auth/login` | 401 |
+| Consultar disponibilidad sin token | GET `/api/disponibilidad` | 401 |
+| Consultar disponibilidad con token | GET `/api/disponibilidad` | 200 |
+| Registrar ingreso | POST `/api/ingreso` | 201 |
+| Ingreso en espacio ocupado | POST `/api/ingreso` | 409 |
+| Registrar salida | POST `/api/salida` | 200 |
+
+---
+
+## Tecnologías
+
+| Capa | Tecnología |
+|------|------------|
+| Frontend | HTML5, CSS3, JavaScript vanilla (SPA) |
+| Backend | Node.js 20, Express 4 |
+| ORM | Sequelize 6 |
+| Base de datos | MySQL 8 |
+| Autenticación | JSON Web Tokens (`jsonwebtoken`), `bcryptjs` |
+| Integración SOA | WSO2 Micro Integrator 4.x |
+| Despliegue backend | Railway |
+| Despliegue frontend | GitHub Pages |
+
+---
+
+## Equipo
+
+| Nombre | Rol |
+|--------|-----|
+| Gabriel Alejandro Sanchez Mora | Líder de Arquitectura / Analista |
+| Jeisson Andres Villarraga Reyes | Desarrollador |
+| Integrante 3 | QA / Aseguramiento de Calidad |
+
+---
+
+## Contexto Académico
+
+- **Asignatura:** Arquitectura de Software II — G01
+- **Universidad:** Corporación Universitaria Minuto de Dios (UNIMINUTO)
+- **Docente:** Fabio Andres Hernandez Rueda
+- **Periodo:** 2026-1
+- **Fase:** 3 — Implementación y Mantenimiento del Servicio SOA
