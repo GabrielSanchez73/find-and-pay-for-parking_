@@ -43,9 +43,9 @@ El sistema está organizado en cuatro capas:
 | Componente | URL |
 |------------|-----|
 | Frontend (GitHub Pages) | https://gabrielsanchez73.github.io/find-and-pay-for-parking_/ |
-| Backend API (Railway) | https://find-and-pay-for-parking-production.up.railway.app |
+| Backend API REST (render) | https://find-and-pay-for-parking.onrender.com |
 
-Health check: https://find-and-pay-for-parking-production.up.railway.app/api/health
+Deploy MySQL en Railway
 
 ---
 
