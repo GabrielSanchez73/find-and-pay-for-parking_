@@ -1,6 +1,6 @@
 # ParkingControl SOA
 
-Sistema de gestión de parqueaderos basado en Arquitectura Orientada a Servicios (SOA), desarrollado como proyecto académico para la asignatura **Arquitectura de Software II — UNIMINUTO 2026-1**.
+Sistema de gestión de parqueaderos basado en Arquitectura Orientada a Servicios (SOA), desarrollado como proyecto académico para la asignatura **Arquitectura de Software II — La Salle 2026-1**.
 
 ---
 
@@ -220,7 +220,7 @@ Las pruebas de integración se ejecutan con colecciones de Postman contra los en
 ## Contexto Académico
 
 - **Asignatura:** Arquitectura de Software II — G01
-- **Universidad:** Corporación Universitaria Minuto de Dios (UNIMINUTO)
+- **Universidad:** Universidad de La Salle
 - **Docente:** Fabio Andres Hernandez Rueda
 - **Periodo:** 2026-1
 - **Fase:** 3 — Implementación y Mantenimiento del Servicio SOA
