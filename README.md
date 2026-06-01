@@ -223,4 +223,4 @@ Las pruebas de integración se ejecutan con colecciones de Postman contra los en
 - **Universidad:** Universidad de La Salle
 - **Docente:** Fabio Andres Hernandez Rueda
 - **Periodo:** 2026-1
-- **Fase:** 3 — Implementación y Mantenimiento del Servicio SOA
+- **Fase:** 3-Implementación y Mantenimiento del Servicio SOA
